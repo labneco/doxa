@@ -3,7 +3,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Hexya 1.0\n"
+"Project-Id-Version: Doxa 1.0\n"
 "Report-Msgid-Bugs-To: contact@doxa.io\n"
 "POT-Creation-Date: 2017-07-17 10:34+0200\n"
 "PO-Revision-Date: 2017-02-24 21:00+0800\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Hexya 1.0\n"
+"X-Generator: Doxa 1.0\n"
 
 #. selection: Profile.State
 msgid "Active"

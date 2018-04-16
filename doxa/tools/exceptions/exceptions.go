@@ -1,7 +1,7 @@
 // Copyright 2017 NDP Systèmes. All Rights Reserved.
 // See LICENSE file for full licensing details.
 
-// Package exceptions provides error types used throughout Hexya
+// Package exceptions provides error types used throughout Doxa
 package exceptions
 
 import "fmt"

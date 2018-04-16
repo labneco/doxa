@@ -744,8 +744,8 @@ type {{ .Name }}Set struct {
 
 var _ models.RecordSet = {{ .Name }}Set{}
 
-// {{ .Name }}SetHexyaFunc is a dummy function to uniquely match interfaces.
-func (s {{ .Name }}Set) {{ .Name }}SetHexyaFunc() {}
+// {{ .Name }}SetDoxaFunc is a dummy function to uniquely match interfaces.
+func (s {{ .Name }}Set) {{ .Name }}SetDoxaFunc() {}
 
 // First returns a copy of the first Record of this RecordSet.
 // It returns an empty {{ .Name }} if the RecordSet is empty.
@@ -948,12 +948,12 @@ import (
 {{ range .RelModels }}
 type {{ . }}Condition interface {
 	models.Conditioner
-	{{ . }}ConditionHexyaFunc()
+	{{ . }}ConditionDoxaFunc()
 }
 
 type {{ . }}Set interface {
 	models.RecordSet
-	{{ . }}SetHexyaFunc()
+	{{ . }}SetDoxaFunc()
 }
 {{ end }}
 
@@ -988,8 +988,8 @@ func (c Condition) Underlying() *models.Condition {
 	return c.Condition
 }
 
-// {{ $.Name }}ConditionHexyaFunc is a dummy function to uniquely match interfaces.
-func (c Condition) {{ $.Name }}ConditionHexyaFunc() {}
+// {{ $.Name }}ConditionDoxaFunc is a dummy function to uniquely match interfaces.
+func (c Condition) {{ $.Name }}ConditionDoxaFunc() {}
 
 var _ models.Conditioner = Condition{}
 

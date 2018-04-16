@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// HexyaPath is the go import path of the base doxa package
-	HexyaPath = "github.com/doxa-erp/doxa"
+	// DoxaPath is the go import path of the base doxa package
+	DoxaPath = "github.com/doxa-erp/doxa"
 	// ModelsPath is the go import path of the doxa/models package
 	ModelsPath = "github.com/doxa-erp/doxa/doxa/models"
 	// DatesPath is the go import path of the doxa/models/types/dates package
@@ -27,8 +27,8 @@ const (
 
 var (
 	log *logging.Logger
-	// HexyaDir is the directory of the base doxa package
-	HexyaDir string
+	// DoxaDir is the directory of the base doxa package
+	DoxaDir string
 	// ModelMixins are the names of the mixins declared in the models package
 	ModelMixins map[string]bool = map[string]bool{
 		"CommonMixin":    true,
@@ -40,9 +40,9 @@ var (
 
 func init() {
 	log = logging.GetLogger("tools/generate")
-	doxaPack, err := build.Import(HexyaPath, ".", build.FindOnly)
+	doxaPack, err := build.Import(DoxaPath, ".", build.FindOnly)
 	if err != nil {
-		panic(fmt.Errorf("Error while getting Hexya root path: %s", err))
+		panic(fmt.Errorf("Error while getting Doxa root path: %s", err))
 	}
-	HexyaDir = doxaPack.Dir
+	DoxaDir = doxaPack.Dir
 }

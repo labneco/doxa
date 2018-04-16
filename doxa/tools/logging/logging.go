@@ -73,7 +73,7 @@ func (l *Logger) Panic(msg string, ctx ...interface{}) {
 	})
 }
 
-// Initialize starts the base logger used by all Hexya components
+// Initialize starts the base logger used by all Doxa components
 func Initialize() {
 	logLevel, err := log15.LvlFromString(viper.GetString("LogLevel"))
 	if err != nil {
@@ -100,7 +100,7 @@ func Initialize() {
 			),
 		),
 	)
-	log.Info("Hexya Starting...")
+	log.Info("Doxa Starting...")
 }
 
 // GetLogger returns a context logger for the given module
@@ -116,7 +116,7 @@ func GetLogger(moduleName string) *Logger {
 // this function.
 func LogPanicData(panicData interface{}) error {
 	msg := fmt.Sprintf("%v", panicData)
-	log.Error("Hexya panicked", "msg", msg)
+	log.Error("Doxa panicked", "msg", msg)
 
 	stackTrace := stack(1)
 	log.Error(fmt.Sprintf("Stack trace:\n%s", stackTrace))
