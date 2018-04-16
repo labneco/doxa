@@ -1,0 +1,78 @@
+= Data Loading
+Author Nicolas Piganeau
+:prewrap!:
+:toc:
+:sectnums:
+
+== Introduction
+Doxa framework provides a way to load user space data directly into the database through the use of CSV files.
+
+Doxa manages two kinds of data:
+
+- Configuration data needed for the logic to work.
+They are always loaded.
+- Demo data needed either for evaluating the module or for use as test data.
+Demo data is only loaded if the `Demo` configuration parameter is set to True.
+
+== CSV Files
+Configuration data must be put in the `data` subdirectory of a module, whereas demo data must be put in the `demo` subdirectory.
+
+The files inside these subdirectories will be automatically loaded in the database by alphabetical order, following these
+rules:
+
+- The name of the CSV file must be the name of a model defined in the framework
+either in this module or in dependencies of this module. Numbers and dashes at
+the beginning of the file name are trimmed (used for sorting).
+- The header line of the CSV defines the field names either as their real name
+or their column (JSON) name.
+- Each line is a record, with the values for each field.
+- If an `ID` column is defined, it must be populated with a unique string for
+each record known as its "external ID". If it is not defined, the framework
+will provide one for each record.
+- Foreign key fields must be set with the related record external ID
+- Many-to-Many fields must be set with a `|` separated list of external IDs
+- Binary fields must be set with the relative path (from this file's directory)
+to a file with the binary content to load.
+
+NOTE:: Files in the `demo` subdirectory will only be loaded if the `Demo` parameter is set in the config.
+
+== Versions
+Versions of data can be handled through the name of the CSV file.
+
+- By default, if a record with the given external ID already exists, then the
+line is silently discarded.
+- If the CSV file name is postponed with `_` and a version number such as
+`Model_3.csv`, a record with an existing external ID will be overridden only if
+the version number of the file is above the version of the record in the
+database. Records with non existing external ID will be inserted with the
+version of the file name.
+- If the CSV file name is postponed with `_update` such as `Model_update.csv`,
+records with existing IDs are all overridden by the records in the file, and
+their version number in the database is reset to 0.
+
+== Examples
+
+[source,csv]
+.User.csv
+----
+ID,Name,Nums,IsStaff,Size
+peter_id,Peter,1,true,1.78
+mary_id,Mary,3,false,1.59
+nick_id_3,Nick,8,true,1.85
+----
+[source,csv]
+.Tag_update.csv
+----
+ID,Name
+tag_book,Book
+tag_app,Application
+tag_film,Film
+tag_music,Music
+----
+[source,csv]
+.Post_1.csv
+----
+ID,User,Title,Content,Tags
+post_id_1,peter_id,Peter's Post,This is peter's post content,tag_book|tag_film
+post_id_2,nick_id,Nick's Post,No content,tag_book|tag_music|tag_app
+----

@@ -1,0 +1,1026 @@
+= Models API
+Author Nicolas Piganeau
+:prewrap!:
+:toc:
+:sectnums:
+
+== Introduction
+
+The models API allows modules to interact with Doxa's models and records. This
+API is mainly an ORM but with additional features needed for business logic.
+Developers familiar with Odoo's ORM should find many similarities with the
+latter.
+
+Special care has been put in Doxa's model API to ease development. In
+particular:
+
+* Almost no reflection so that a standard Go IDE can propose relevant
+inspections and autocompletion.
+* Type safety by preferring structs to maps and almost never use string
+references so that most mistakes can be spotted at compile time.
+
+== RecordSets
+
+=== Records and RecordSets types
+
+Each model has a definition instance that can be retrieved by using the
+`__Model__()` function of the `h` package. This model instance will be used
+to extend/modify the model definition.
+
+Interaction with models and records is performed through RecordSets, a sorted
+set of Records of the same model. Methods defined on a model are executed on a
+RecordSet.
+
+Each model has its own RecordSet Go type named by appending "Set" to the
+model's name (e.g. the RecordSet type for the `Partner` model is called
+`PartnerSet`). All RecordSet types implement the `RecordSet` interface, but
+also a whole set of methods with defined names but which differ by the
+parameters or return values types. For example, all RecordSets implement a
+`Create` method but each take a Record struct of its model type and return its
+own type.
+
+Each model has also its own Record Go type which is named by appending "Data"
+to its model's name (e.g. `PartnerData`). A Record type is simply a struct
+with all the fields of the model whether they are stored into the database or
+computed on the fly. Record types are used to read and write values to
+RecordSets.
+
+All Record and RecordSet types live in the `h` package.
+
+=== Using RecordSets
+
+RecordSets are self-querying. One should initialize an empty RecordSet call
+`search()` on it to populate it from the database. RecordSets implement lazy
+loading, so that data is actually queried only when needed.
+
+An empty RecordSet instance of a model `ModelName` can be instantiated by
+calling the `NewSet(env Environment)` of its model instance.
+
+=== Common RecordSet Methods
+
+The following methods can be called RecordSet instances.
+
+[NOTE]
+====
+A parameter or return value of type `RecordSetType` means the actual type of
+the RecordSet for this model (not an interface).
+
+A parameter or return value of type `RecordType` means the actual type of the
+Record struct for this model (e.g. `PartnerData`).
+====
+
+==== Data Access Methods
+
+`*First() RecordType*`::
+Returns a copy of the first Record of the RecordSet. It returns an empty
+RecordType if the RecordSet is empty.
+
+`*All() []RecordType*`::
+Returns all Records of the RecordSet as a slice of RecordType. It returns an
+empty slice if the RecordSet is empty.
+
+`*Read(fields []string) []FieldMap*`::
+Returns all Records of the RecordSet as a slice of FieldMap. It returns an
+empty slice if the RecordSet is empty.
+
+RecordSets implement type safe getters and setters for all fields of the
+Record struct type.
+
+`*__FieldName__() __FieldType__*`::
+Getter for the field called `__FieldName__` of type `__FieldType__` of the
+`First()` Record of the RecordSet. Call to the getter will make a call to
+`Read()` first if the field is not loaded in the RecordSet's cache.
++
+It returns the Go zero value of the type if it is called on an empty RecordSet.
+
+`*Set__FieldName__(value __FieldType__)*`::
+Setter for the field called `__FieldName__` of type `__FieldType__`. If the
+RecordSet has several Records, all of them will be updated. Each call to the
+setter makes an update query in the database.
++
+It panics if it is called on an empty RecordSet.
+
+NOTE: The `__FieldType__` of a relation field (i.e. many2one, ...) is a
+RecordSet of the type of the related model.
+
+==== CRUD Methods
+
+`*(Model) Create(env Environment, data *RecordType) RecordSetType*`::
+Insert a new record in the database with the given data and returns the
+inserted Record. Fields which are not given a value are set to the type's zero
+value.
+
+[source,go]
+----
+customer := h.Partner().Create(env, q.PartnerData{
+    Name: "Jane Smith",
+    Email: "jsmith@example.com",
+    Position: "Sale's Manager",
+})
+fmt.Println(customer.Name())
+// Returns:
+// Jane Smith
+----
+
+You can also use the `Create` alias on a RecordSet instance. In this case,
+the actual values of the RecordSet are silently ignored.
+
+[source,go]
+----
+customer := h.Partner().NewSet(env).Create(h.PartnerData{
+    Name: "Jane Smith",
+    Email: "jsmith@example.com",
+    Position: "Sale's Manager",
+})
+fmt.Println(customer.Name())
+// Returns:
+// Jane Smith
+
+----
+
+`*Write(data *RecordType, fieldsToUnset ...models.FieldName) bool*`::
+Update records in the database with the given data. Updates are made with a
+single SQL query. Fields in `fieldsToUnset` are first set to their Go zero
+value, then all non-zero values of data are updated.
+
+[source,go]
+----
+partner := h.Partner().Search(env, q.Partner().Where().Company().Name().Equals("NDP Systèmes"))
+partner.Write(h.Partner{
+    Lang: "fr_FR",
+})
+----
+
+IMPORTANT: As said above, zero values in the `data` struct fields will *NOT* be
+updated. If you are not sure whether the values you pass in the `data` struct
+are zero values or not (e.g. when setting from a variable), include their
+`FieldName` in the `fieldsToUnset` to be sure the value will be correctly
+updated in case it is a zero value.
+
+`*Unlink() bool*`::
+Deletes the database records that are linked with this RecordSet.
+
+`*Load(fields ...models.FieldName) RecordSetType*`::
+Populates this RecordSet with the data from the database matching the current
+search condition. If fields are given, only those fields are fetched and the
+other fields of the Records are set to their `go` zero value.
++
+Calling Load on an empty RecordSet with an empty query will have no effect.
+To load a whole table, use `FetchAll()`.
+
+NOTE: Call to `Load()` is optional. It will be automatically called (without
+fields arguments) on the first call to a getter or when calling `Records()`.
+
+TIP: Calling `Load()` with fields arguments before any other call allows to
+finely control which fields will be queried from the database since subsequent
+calls to a getter will not call `Read()` again if the value is already loaded.
+
+[source,go]
+----
+partners := h.Partner().NewSet(env)
+partners.Search(q.Partner().Where().Name().ILike("John")).Read(h.Partner().Name, h.Partner().Birthday)
+
+// The following lines will not load from the database, but use
+// the values cached in the RecordSet.
+for _, p := range partners.Records() {
+    fmt.Println(p.Name(), p.Birthday())
+}
+// Returns:
+// John Smith 1982-06-03
+// John Doo 1975-01-06
+----
+
+`*FetchAll() RecordSetType*`::
+Returns a RecordSet with all items of the table, regardless of the current
+RecordSet query. It is mainly meant to be used on an empty RecordSet.
+
+==== Search Methods
+
+`*(Model) Search(env Environment, condition ConditionType) RecordSetType*`::
+Search the database for matching records and return them as RecordSet.
+A new Condition instance can be created from a model instance.
+
+[source,go]
+----
+cond := q.Users().Email().ILike("example.com").Or().Email().ILike("example.net")
+users := h.Users().Search(env, cond)
+----
+
+`*(RecordSet) Search(condition ConditionType) RecordSetType*`::
+Apply the given search condition to the given RecordSet. This will narrow the
+RecordSet current filter.
+
+====
+.Available methods on Condition type
+* `And()`
+* `AndNot()`
+* `AndCond(condition ConditionType)`
+* `Or()`
+* `OrNot()`
+* `OrCond(condition ConditionType)`
+====
+====
+.Available operator methods
+Depending on the field type, all or part of the following operator methods
+will be available:
+
+`Equals`, `NotEquals`, `Greater`, `GreaterOrEqual`, `Lower`, `LowerOrEqual`,
+`Like`, `NotLike`,`Contains`, `NotContains`, `IContains`, `NotIContains`, `In`,
+`NotIn`, `ChildOf`, `IsNull`, `IsNotNull`
+
+Each of these methods take a `value` parameter which is of the same Go type as
+the field on which it is applied.
+
+For each of them there are two derived methods suffixed respectively with
+`Func` and `Eval` :
+
+- `Func` suffixed methods (e.g. `EqualsFunc`) take as argument a function
+whose first argument is a RecordSet and that returns a value with the same Go
+type as the field on which it is called.
++
+eg. `func(rs models.RecordSet) int64`
++
+The function will be evaluated at the time of the query by passing it the
+RecordSet we are querying and the result will be substituted in the query.
+- `Eval` suffixed methods (e.g. `EqualsEval`) take an expression string as
+argument. This expression will be passed as is to the client and evaluated
+client side.
++
+IMPORTANT: The returned condition of an `Eval` suffixed method cannot be
+evaluated on server side. Thus `Eval` suffixed methods must NOT be used
+within the `Search()` method.
+====
+====
+.Searches on joined tables
+Searches can also be performed on joined model fields with the
+`__FK__FilteredOn()` methods:
+
+[source,go]
+----
+cond := q.Users().PartnerFilteredOn(q.Partner().Function().ILike("manager"))
+users := h.Users().Search(env, cond)
+----
+
+Conditions with `__FK__FilteredOn()` can be nested:
+
+[source,go]
+----
+cond := q.Users().PartnerFilteredOn(q.Partner().CountryFilteredOn(q.Country().Code.Equals("F")))
+----
+
+They can also be mixed with simple conditions:
+
+[source,go]
+----
+cond := q.Users().PartnerFilteredOn(q.Partner().Function().ILike("manager")).And().Login().ILike("John")
+----
+====
+
+`*(Model) Browse(env Environment, ids []int64) RecordSetType*`::
+Search the database and returns a RecordSet with the records having the given ids.
+
+`*(RecordSet) Browse(ids []int64) RecordSetType*`::
+Narrows this RecordSet by selecting only those with the given ids.
+This function is only a shortcut for `Search` on a list on ids.
+
+`*SearchCount() int*`::
+Return the number of records matching the search condition.
+
+`*SearchByName(name string, op operator.Operator, additionalCond Condition, limit int) RecordSetType*`::
+Search for records that have a display name matching the given
+`name` pattern when compared with the given `op` operator, while also
+matching the optional `additionalCond` condition.
++
+This is used for example to provide suggestions based on a partial
+value for a relational field. Sometimes be seen as the inverse
+function of `NameGet` but it is not guaranteed to be.
+
+`*FetchAll() RecordSetType*`::
+Returns a RecordSet with all the records in the database for the RecordSet's
+model.
+
+`*Limit(n int) RecordSetType*`::
+Limit the search to `n` results.
+
+`*Offset(n int) RecordSetType*`::
+Offset the search by `n` results.
+
+`*OrderBy(exprs ...string) RecordSetType*`::
+Order the results by the given expressions. Each expression is a string with a
+valid field name and optionally a direction.
+
+[source,go]
+----
+users := h.Users().NewSet(env).SearchAll().OrderBy("Name ASC", "Email DESC", "ID")
+----
+
+==== RecordSet Operations
+
+`*Ids() []int64*`::
+Return a slice with all the ids of this RecordSet. Performs a lazy loading of
+the RecordSet if it is not already loaded.
+
+`*Env() *Environment*`::
+Returns the RecordSet's Environment.
+
+`*Len() int*`::
+Returns the number of records in this RecordSet.
+
+`*Record(i int) RecordSetType*`::
+Returns a new RecordSet with only the i^th^ Record inside.
+
+`*Records() []RecordSetType*`::
+Returns a slice of RecordSets, each with only one Record of the current
+RecordSet.
+
+`*EnsureOne()*`::
+Check that this RecordSet contains only one Record. Panics if there are more
+than one Record or if there are no Records at all.
+
+`*Filtered(fn func(RecordType) bool) RecordSetType*`::
+Select the records in this RecordSet such that fn(Record) is true, and return
+them as a RecordSet. Filtered will use the data in cache if present.
+
+NOTE: Unless the RecordSet is already loaded in cache, it might be faster
+and more efficient to use `Search()` on the RecordSet to return a filtered
+Set.
+
+`*Sorted(less func(RecordSet, RecordSet) bool) RecordSetType*`::
+Returns a sorted copy of this RecordSet. `less(rs1, rs2)` should return true
+if rs1 < rs2.
++
+The Sort is not guaranteed to be stable.
+
+`*SortedDefault() RecordSetType*`::
+Returns a sorted copy of this RecordSet according to the model's default order.
+
+`*SortedByField(f FieldNamer, reverse bool) RecordSetType*`::
+Returns a sorted copy of this RecordSet by comparing the given field.
+If reverse is true, the sort is done in reversed order.
+
+`*Union(other RecordSetType) RecordSetType*`::
+Returns a new RecordSet that is the union of this RecordSet and the given
+`other` RecordSet. The result is guaranteed to be a set of unique records.
+
+`*Subtract(other RecordSetType) RecordSetType*`::
+Returns a RecordSet with the Records that are in this RecordSet but not in the
+given 'other' one. The result is guaranteed to be a set of unique records.
+
+`*Equals(other RecordSetType) bool*`::
+Returns true if this RecordSet is equal to the other RecordSet, that is they
+are from the same model and reference the same ids.
+
+== Environment
+
+The Environment stores various contextual data used by the ORM: the database
+transaction (for database queries), the current user (for access rights
+checking) and the current context (storing arbitrary metadata).
+
+The usual way to get the current Environment is to call `Env()` on a RecordSet.
+
+=== Environment Methods
+
+The following methods are available on the Environment.
+
+`*Cr() *Cursor*`::
+Returns the cursor to the database. The cursor is a wrapper around the current
+database transaction that can be used for <<Direct Database Access>>.
+
+`*Uid() int64*`::
+Returns the user ID of the current user.
+
+`*Context() *types.Context()*`::
+Returns the context of this Environment. The context is a
+read only map for storing arbitrary metadata. See <<Context Methods>>.
+
+=== Context Methods
+
+The Context of an Environment is a read only map for storing arbitrary
+metadata. To modify the context, you need to modify the Environment
+(see <<Modifying the Environment>>).
+
+`*HasKey(key string) bool*`::
+Returns true if the Context has a value for the given key.
+
+`*Get(key string) interface{}*`::
+Returns the value of the Context for the given key. It returns nil if the
+Context does not contain this key.
+
+NOTE: If you know the expected return type, you would probably use one of the
+following typed methods instead.
+
+`*GetString(key string) string*`::
+Returns the value of the given key in this Context as a string.
+It panics if the value is not of type string
+
+`*GetInteger(key string) int64*`::
+Returns the value of the given key in this Context as an int64.
+It panics if the value cannot be casted to int64
+
+`*GetFloat(key string) float64*`::
+Returns the value of the given key in this Context as a float64.
+It panics if the value cannot be casted to float64
+
+`*GetStringSlice(key string) []string*`::
+Returns the value of the given key in this Context as a []string.
+It panics if the value is not a slice or if any value is not a string
+
+`*GetIntegerSlice(key string) []int64*`::
+Returns the value of the given key in this Context as a []int64.
+It panics if the value is not a slice or if any value cannot be casted to int64
+
+`*GetFloatSlice(key string) []float64*`::
+Returns the value of the given key in this Context as a []float64.
+It panics if the value is not a slice or if any value cannot be casted to
+float64
+
+`*SetEntry(key string, value interface{}) *Context*`::
+Returns a copy of this Context with the given key set to the given value.
+
+A pointer to a new empty Context can be created with `types.NewContext()`
+
+=== Executing in a new Environment
+
+`*models.ExecuteInNewEnvironment(uid int64, fnct func(Environment)) error*`::
+Executes the given `fnct` in a new Environment within a new database
+transaction and commit the transaction on success. In case `fnct` panics, the
+transaction is rolled back instead and the panic data is returned as error.
+
+`*models.SimulateInNewEnvironment(uid int64, fnct func(Environment)) error*`::
+Executes the given `fnct` in a new Environment within a new database
+transaction but rolls back the transaction at the end. In case `fnct` panics,
+the panic data is returned as error.
++
+This function is mainly useful for testing when database modification must be
+avoided.
+
+=== Modifying the Environment
+
+The Environment is immutable. It can be customized with the following methods
+to be applied on the RecordSet.
+
+`*Sudo(uid ...int64) RecordSetType*`::
+Call the next method as Super User. If uid is given, use the given user id
+instead.
+
+[source,go]
+----
+noReplyUser := h.Users().Search(env, q.Users().Email().Equals("no-reply@ndp-systemes.fr")).Limit(1)
+partners := h.Partner().Search(env, q.Partner().Name().ILike("John"))
+
+partners.Sudo(noReplyUser.ID()).SendConfirmationEmail()
+----
+
+`*WithEnv(env Environment) RecordSetType*`::
+Returns a copy of the current RecordSet with the given Environment.
+
+`*WithContext(key string, value interface{}) RecordSetType*`::
+Returns a copy of the current RecordSet with its context extended by the
+given key and value.
+
+`*WithNewContext(context types.Context) RecordSetType*`::
+Returns a copy of the current RecordSet with its context replaced by the
+given one.
+
+=== Direct Database Access
+
+Direct database access is possible through the Cursor of the Environment. The
+Cursor provides the following methods for accessing the database. All methods
+operate inside the current transaction.
+
+`*Execute(query string, args ...interface{}) sql.Result*`::
+Execute a query without returning any rows. It panics in case of error.
+The args are for any placeholder parameters in the query. Whatever the database
+backend used, the placeholder is `?`.
+
+`*Get(dest interface{}, query string, args ...interface{})*`::
+Queries a row into the database and maps the result into dest.
+The query must return only one row. It panics on errors.
+
+`*Select(dest interface{}, query string, args ...interface{})*`::
+Queries multiple rows and map the result into dest which must be a slice.
+Select panics on errors.
+
+[source,go]
+----
+type dbStruct struct {
+    Name: string
+    Age:  int
+}
+var single dbStruct
+var data []dbStruct
+
+rc.env.Cr().Get(&single, "SELECT name, age FROM partner WHERE id = ?", 12)
+rc.env.Cr().Select(&data, "SELECT name, age FROM partner WHERE age > ?", 25)
+----
+
+NOTE: Direct database access should be avoided whenever possible because it
+by-passes all security restrictions. Use the RecordSet API instead.
+
+== Creating / extending models
+
+When developing a Doxa module, you can create your own models and/or
+extend in place existing models created by other modules.
+
+[source,go]
+----
+resPartnerModel := h.Partner()
+resUsersModel := h.Users()
+----
+
+All models, fields and methods definitions MUST be made in the `init()` of
+the main package or of a package called by the module's main package.
+
+[IMPORTANT]
+====
+After creating or modifying a model, you must run `doxa generate` to
+generate the types in the `h` and `q` packages before starting the Doxa server.
+
+Running `doxa generate` will also allow you to obtain code completion and
+inspections on the newly created types.
+====
+
+=== Creating a new model
+`*(*Model) DeclareModel() *Model*`::
+
+Declare a new model. This function should be called on a 'not-yet-created'
+instance of the model we want to create. It is actually a placeholder, the code
+generation will make the actual Model creation.
+
+[source,go]
+----
+// Create a new model called 'User'
+h.User().DeclareModel()
+----
+
+The created model will have a single `ID` field which is the model's primary
+key. It returns an pointer to the created model instance.
+
+`*DeclareMixinModel() *Model*`::
+
+Declare a new mixin model. Mixin model are not meant to be accessible like a
+ regular model but are meant to be mixed in other models.
++
+See <<Model Mix In>>
+
+`*DeclareTransientModel() *Model*`::
+
+Creates a new transient model with the given name. Transient model instances
+have a limited life time and are automatically removed from database. They
+are mainly used for wizards.
+
+=== Fields declaration
+
+Models fields are added by the `AddField` method of a model as in the example below:
+
+[source,go]
+----
+course := h.Course().DeclareModel()
+course.AddFields(map[string]models.FieldDefinition{
+    "Name":      models.CharField{String: "Name", Help: "This is the name of the course", Required: true},
+    "Date":      models.DateField{String: "Date of the Course"},
+    "Teacher":   models.Many2OneField{RelationModel: h.Partner(), String: "Teacher"},
+    "LimitDate": models.DateTimeField{Required: true},
+    "Attendees": models.Many2manyField{RelationModel: h.Partner(), String: "Attendees"},
+})
+----
+
+Available fields types are:
+
+`*BinaryField{}*`::
+A binary field holds arbitrary data that is meant to be delivered to the
+client as a file. Binary fields are mapped to `string` go type.
+`*BooleanField{}*`::
+`*CharField{}*`::
+A Char field is a string field that is meant to be displayed as a single line
+in the client. Char fields are mapped to go strings.
+`*DateField{}*`::
+Date fields are mapped to models.Date structs.
+`*DateTimeField{}*`::
+DateTime fields are mapped to models.Date structs.
+`*FloatField{}*`::
+`*HTMLField{}*`::
+HTML fields are formatted with their HTML content by the client.
+`*IntegerField{}*`::
+`*Many2ManyField{}*`::
+`*Many2OneField{}*`::
+`*One2ManyField{}*`::
+`*One2OneField{}*`::
+`*Rev2OneField{}*`::
+Rev2One fields are the reverse relation of one2one in the model that does not
+have an FK.
+`*SelectionField{}*`::
+A selection field can have as values only a set of predefined strings.
+`*TextField{}*`::
+A Text field is a string field that is meant to be displayed on multiple lines
+in the client. Text fields are mapped to go strings.
+
+As in the example below:
+
+
+==== Overriding fields
+
+Fields attributes can be overridden by using one of the following methods that
+apply on a Field instance.
+
+`*(f *Field) SetString(value string) *Field*`::
+`*(f *Field) SetHelp(value string) *Field*`::
+`*(f *Field) SetGroupOperator(value string) *Field*`::
+`*(f *Field) SetRelated(value string) *Field*`::
+`*(f *Field) SetCompute(value Methoder) *Field*`::
+`*(f *Field) SetDepends(value []string) *Field*`::
+`*(f *Field) SetStored(value bool) *Field*`::
+`*(f *Field) SetRequired(value bool) *Field*`::
+`*(f *Field) SetReadOnly(value bool) *Field*`::
+`*(f *Field) SetUnique(value bool) *Field*`::
+`*(f *Field) SetIndex(value bool) *Field*`::
+`*(f *Field) SetNoCopy(value bool) *Field*`::
+`*(f *Field) SetTranslate(value bool) *Field*`::
+`*(f *Field) SetDefault(value func(Environment) interface{}) *Field*`::
+`*(f *Field) SetOnchange(value Methoder) *Field*`::
+`*(f *Field) SetConstraint(value Methoder) *Field*`::
+`*(f *Field) SetInverse(value Methoder) *Field*`::
+
+[source,go]
+----
+course := h.Course().Fields().Name().SetString("MyNewName").SetHelp("This is the new name of the course")
+----
+
+==== Field parameters
+
+Field parameters are set in the params struct that is passed to the field's
+creation/override method. Params structs only differ by the options available
+to specific types. Below is the list and explanation for each parameter.
+
+===== Field type parameters
+
+`ReverseFK` string::
+Set the foreign key field name in the related model for `one2many` and
+`rev2one` relations.
+
+`RelationModel` string::
+Set the other model for a relation field.
+
+`M2MLinkModelName` string::
+Set the name of the intermediate model for a `many2many` relation. This
+parameter is mandatory only if there are several `many2many` relations
+between the two models.
+
+`M2MOurField` string::
+In a `many2many` relation, set the name of the field of the intermediate model
+that points to this (our) model. This parameter is mandatory only if the
+`many2many` relation is pointing to the same model.
+
+`M2MTheirField` string::
+In a `many2many` relation, set the name of the field of the intermediate model
+that points to the other (their) model, i.e. the model defined by
+`RelationModel`. This parameter is mandatory only if the `many2many` relation
+is pointing to the same model.
+
+`OnDelete` OnDeleteAction::
+Defines what to do with this record if the target record is deleted. Possible
+values are `models.SetNull` (default), `models.Restrict` and `models.Cascade`.
+
+`Selection` map[string]string::
+Map of predefined allowed values for a Selection field. The map keys are the
+actual values, and the map values are the labels to display for each value.
+
+`Size` int::
+Maximum size for the `string` type in database.
+
+`Digits` types.Digit::
+Sets the decimal precision to a Go `float` type to store as a decimal type in
+database. Digit objects have a `Scale` field that defines the total number of
+digits and a `Precision` field that defines the number of digits after the
+decimal point.
+
+`JSON` string::
+Field's JSON value that will be used for the column name in the database and
+for json serialization to the client.
+
+`Translate` bool::
+Set to true if the value of this field must be translated in the user
+interface. This can be the case for product names or descriptions for
+instance.
+
+`GoType` interface{}::
+Specifies the go type to which the field should be mapped. `GoType` should be
+set to a pointer to such a type's value.
++
+If the given type is not a standard type then it must implement `driver.Valuer`
+and `sql.Scanner` interfaces.
+
+[source,go]
+----
+session := h.Session().DeclareModel()
+session.AddFields(map[string]models.FieldDefinition{
+    "Room No": models.IntegerField{GoType: new(int16)},
+})
+----
+
+===== Field's metadata parameters
+
+`String` string::
+Field's label inside the application.
+`Help` string::
+Field's help typically displayed as tooltip.
+
+===== Field's modifiers parameters
+
+`Required` bool::
+Defines the field as required (i.e. not null).
+
+`ReadOnly` bool::
+This field will be shown as read only on all views.
+Note that this does not prevent setting the field by code or through a method.
+
+`Unique` bool::
+Defines the field as unique in the database table.
+
+`Index` bool::
+Creates an index on this field in the database.
+
+`NoCopy` bool::
+Fields marked with this tag will not be copied when a record is duplicated.
+
+`Default` func(Environment) interface{}::
+Function that will be called by clients to set a default value in the user
+interface before calling Create.
++
+The default value will also be set when calling Create only if this is a required field and no value is set.
+
+`OnChange` Methoder::
+The method to call when this field is changed in the interface.
+The value must be a method on this RecordSet with the following
+signature, which returns a Record with the values to update and a slice of
+field names to unset.
+
+[source,go]
+----
+func (RecordSetType) (*RecordType, []models.FieldNamer)
+----
+
+NOTE: OnChange function is called only when the modification is done in the
+interface, not by code.
+
+IMPORTANT: OnChange methods are executed in an isolated environment that is
+rolled back after execution. You should therefore not try to create or
+write any RecordSet in these methods, or they will fail.
+
+`Constraint` Methoder::
+The method to call to validate the value of this field in a record.
+The value must be a method on this RecordSet with the following
+signature:
+
+[source,go]
+----
+func (RecordSetType)
+----
+
+The given method must panic if the given RecordSet is not valid.
+
+NOTE: Several fields can set their `Constraint:` to the same method. In this
+case the method will only be called once, even if both fields are modified.
+
+`GroupOperator` string::
+A valid database function name that will be used on this field when aggregating
+the model. It defaults to `sum`.
+
+===== Computed fields parameters
+
+`Compute` Methoder::
+Declares this field as a computed field. The value must be a
+method on this RecordSet with the following signature, which returns a
+Record struct with the values to update.
+
+[source,go]
+----
+func (RecordSetType) *RecordType
+----
+
+`Inverse` Methoder::
+Declares an inverse method for a computed field. This method will be called when
+the field is set and must write directly its changes to the database. The given
+method must have the following signature:
+
+[source,go]
+----
+func (RecordSetType, valueType)
+----
+
+where `valueType` is the go type for the given field value.
+
+`Related` string::
+Declares this field as a related field, i.e. a field that is automatically
+synchronized with another field. The value must be a path string to the
+related field starting from the current RecordSet
+(e.g. `"Customer.Country.Name"`).
+
+`Stored` bool::
+For a computed field, if true then the field will be stored into the database.
+Recomputation will be triggered by the data in the `Depends` parameter.
++
+Storing a computed field allows to make queries on its value and speeds up
+reading of the RecordSet. However, the updates can be slowed down,
+especially when multiple triggers are fired at the same time.
+
+`Depends` string::
+Defines the fields on which to trigger recomputation of this field. This is
+relevant only for computed fields with the `Stored` parameter set to true.
++
+Value must be a comma separated list of paths to fields used in the
+computation of this field. Paths may go through `one2many` or `many2many`
+fields. In this case all the fields that would match will be used as triggers.
+
+`Embed` bool::
+Embed the model of the related field into this model. This field must be a
+`many2one` field.
++
+When embedded, all the fields of the RecordSet pointed by this field
+will be automatically added as `Related` fields, so that they can be accessed
+directly from this RecordSet.
+
+NOTE: Only the fields of the embedded model will be accessible from this
+model, not its methods.
+
+==== Reserved field names
+
+Fields that are given the following names will have special behaviours
+described below.
+
+`Name` CharField::
+The Record's name. It will be used by default in user interfaces for display
+when this Record is referred to (for instance as an FK of another model).
++
+This behaviour can be changed by overriding the `NameGet` method of the model.
+
+`Parent` Many2OneField::
+Used in recursive models for the foreign key to this Record's parent Record of
+the same model.
+
+==== Setting constraints on fields
+
+===== SQL constraints
+
+SQL Constraints are managed by the following Model methods that must be run
+before bootstrap.
+
+`*(*Model) AddSQLConstraint(name, sql, errorString string)*`::
+Adds an SQL constraint to this model. `name` is an arbitrary name to reference
+this constraint. It will be appended by the table name in the database, so
+there is only need to ensure that it is unique in this model. `sql` is
+constraint definition to pass to the database. `errorString` is the text to
+display to the user when the constraint is violated
+
+`*(*Model) RemoveSQLConstraint(name)*`::
+Removes the constraint previously created with the given name. This is
+intended for use in a module that want to override the behaviour of a
+previously installed other module.
+
+=== Defining methods
+
+Models' methods are defined in a module and can be overridden by any other
+module, with the ability to call the original method through `Super()`. This
+way, methods can be overridden several times by different modules to
+iteratively add new features.
+
+Each override of a method is declared by a so-called "layer function" with the
+actual implementation. Layer functions must meet the following constraints:
+
+* Its first argument is the method's receiver. It must be of the
+`__RecordSetType__` of the model.
+* It must panic when an error is encountered to force transaction rollback
+(or solve the error directly if possible).
+
+--
+
+`*(*Method) DeclareMethod(doc string, layerFunction interface{}) *Method*`::
+Declares a new method on this model and apply the given `layerFunction` as
+first "layer function". `doc` is the documentation of the method.
++
+This function should be called on a 'not-yet-created' instance of the method
+we want to create. It is actually a placeholder, the code generation will make
+the actual Method creation.
+
+--
+
+[source,go]
+----
+// Create a new method called 'UpdateBirthday' on the 'Partner' model
+h.Partner().Methods().UpdateBirthday().DeclareMethod(
+    `PartnerUpdateBirthday updates this partner birthday.`,
+    func (rs PartnerSet, birthday time.Time) {
+        rs.SetBirthday(Date(birthDay))
+    })
+----
+
+`*(*Method) Extend(doc string, layerFunction interface{}) *Method*`::
+Extends the method with the given `layerFunction`.
+If `doc` is not the empty string, it is appended to the documentation of the
+method.
++
+The layer function should call itself on the RecordSet `Super()` object to
+call the previous layer.
+
+[source,go]
+----
+h.Partner().Methods().UpdateBirthday().Extend(
+    `Extended in myModule to compute age at the same time.`,
+    func(rs PartnerSet, birthday time.Time) {
+        rs.Super().UpdateBirthday(birthday)
+        rs.SetAge(Time.Now().Year() - birthday.Year())
+    })
+----
+
+NOTE: The `functionLayer` passed to `Extend` must have the same signature
+as that of the first layer passed to `DeclareMethod`.
+
+`*(RecordSetType) Super() RecordSetType*`::
+Returns a RecordSet with a modified callstack so that call to the current
+method will execute the next method layer.
++
+Calls to a different method than the current method will call its next layer
+only if the current method has been called from a layer of the other method.
+Otherwise, it will be the same as calling the other method directly.
+
+=== Extending a model
+
+Models can be extended by 3 different ways:
+
+Extension::
+Directly add fields and methods to existing models.
+
+Mix In::
+Add all fields and methods from a model to another model.
+
+Embedding::
+Allow direct access to all fields of another model. Embedding only applies to
+fields, not methods.
+
+==== Model Extension
+
+See <<Fields declaration>> for how to add a field in a model. Fields can be
+added to a model in any module, not only the module in which the model is
+created.
+
+See also <<Defining methods>> to see how to add or override methods in a model.
+
+==== Model Mix In
+
+`*(*Model) InheritModel(mixInModel *Model)*`::
+Extend this model by importing all fields and methods of `mixInModel`.
+`mixInModel` must have been created by `DeclareMixinModel()`.
+
+If a field name conflicts with an existing field name in the model, then:
+
+.Field overriding rules
+- Fields defined in the target model override fields defined in any mixin model
+- Fields defined in a mixin override fields defined in another mixin of same
+priority (i.e. general or specific) imported before.
+
+If a method name conflicts with an existing method name in the model, then:
+
+.Method overriding rules
+- Methods defined in the target model extend methods of the mixin model.
+- Methods defined in a mixin extend methods defined of another mixin of same
+priority (i.e. general or specific) imported before.
+
+Use `Super()` in extending implementation to access the implementation of
+the lower level mixins.
+
+NOTE: When mixing in a model, the database columns are copied into the table of
+the target model, resulting in an independent model. However, all extensions of
+the mixin model are taken into account and apply to all the target models, even
+if the extension has been defined after the mixing in.
+
+==== Model Embedding
+
+Model embedding allows a model to read fields of another model just as if they
+were normal fields of the model.
+
+To embed a model, define a `many2one` field pointing at the model to embed and
+add the `embed` tag to it.
+
+NOTE: Embedding does not allow direct access to the embedded model methods.
+
+== Sequences
+You can use the ORM to create and use custom sequences.
+
+You can create a new database sequence with the `models.NewSequence()`
+function. You can then use the `NextValue()` method to get the next value.
+
+Use `models.MustGetSequence()` to retrieve a sequence.
+
+NOTE: Since sequences are not rollbacked, several calls to `NextValue()` do
+not necessarily give two following numbers.
+
+[source,go]
+----
+seq := models.NewSequence("MySequence")
+
+seq2 := models.MustGetSequence("MySequence")
+for i := 0; i < 10; i++ {
+    val := seq2.NextValue()
+    fmt.Println("Sequence: ", i, val)
+}
+----

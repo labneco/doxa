@@ -1,0 +1,240 @@
+= Security in Doxa
+Author Nicolas Piganeau
+:prewrap!:
+:toc:
+:sectnums:
+
+== Introduction
+
+Security is implemented in Doxa at the ORM level to limit the risks of
+inappropriate privilege elevation.
+
+=== Groups
+It is based on the concept of __group__:
+
+- Permissions are granted or denied to groups
+- Groups can inherit from other groups and get access to these groups
+permissions.
+- A user can belong to one or several groups, and thus inherit from the
+permissions of the groups.
+
+=== Mechanisms
+
+Permissions are given to groups by three distinct mechanisms:
+
+Method Execution Control::
+Model methods can be executed only by members of given groups. This includes
+CRUD methods.
+
+Field Access Control::
+Fields in models can be given `Read` and/or `Write` permissions to specific
+groups to fine tune their access.
+
+Record Rules::
+Grant permissions (`Read`, `Write`, `Unlink`) on some records of a model only
+
+=== Permissions
+
+There are four permissions defined in the `security` package.
+
+[source,go]
+----
+type Permission uint8
+
+const (
+    Read = 1 << Permission(iota)
+    Write
+    Unlink
+    All = Read | Write | Unlink
+)
+----
+
+They are used when defining Record Rules or Field Access Controls.
+
+== Method Execution Control (MEC)
+
+=== Rationale
+
+Unlike other frameworks, Doxa does not enforce access control lists to its
+objects, but instead control execution of model methods. While this system
+still enables mocking ACLs by controlling the execution of CRUD methods, it is
+much more powerful as it allows to give access to a model depending on the
+context.
+
+For example, suppose that we have a group of salesmen and a group of stock
+pickers. In normal operation, salesmen deal with sale orders and pickers deal
+with picking lists and we do not want them to have access to the other's
+objects. However, when a picker has finished picking an order and shipped it,
+we want to update the sale order to the `Shipped` state:
+
+ - With classical ACLs, we would need to grant the pickers the permission to
+write sale orders (or at least its `State` field) or `sudo` the operation
+which leads to potential security risk.
+ - With MEC, we can define a specific method on sale orders (`SetToShipped()`)
+that only updates the status of the sale order to `Shipped` and we
+will grant execution permission on this method to stock pickers.
++
+`SetToShipped()` will be allowed to update the sale order without `sudo`
+because we will have allowed execution on the `Write()` method to stock pickers
+only when called from `SetToShipped()`.
+
+=== Defining Method Execution Permissions
+
+By default, only members of `security.AdminGroup` are allowed to execute a
+method. Other groups should be manually added to allowed groups.
+
+`*(*Method) AllowGroup(group *security.Group, callers ...*Method) *Method*`::
+Grant the execution permission on the method to the given group. If callers
+are defined, then the permission is granted only when this method is called
+from one of the callers, otherwise it is granted whatever the caller.
+
+`*(*Method) RevokeGroup(group *security.Group) *Method*`::
+Revoke the execution permission on the method to the given group if it has been
+given previously, otherwise does nothing. This methods revokes all permissions,
+whatever the caller.
+
+NOTE: These methods return a pointer to the receiver so that they can be
+chained
+
+[source,go]
+----
+h.Users().Methods().SayHello().DeclareMethod(
+    "SayHello returns Hello",
+    func(rs h.UsersSet) {
+        return "Hello"
+    }).
+    AllowGroup(sale.GroupSalesman).
+    AllowGroup(stock.GroupPicker, h.Users().Methods().Create())
+    // Pickers can say hello only from the 'Create' method
+----
+
+`*(*MethodCollection) AllowAllToGroup(group *security.Group)*`::
+This is a helper method to grant access to all methods of a model at once:
+
+[source,go]
+h.Users().Methods().AllowAllToGroup(GroupERPManager)
+
+`*(*MethodCollection) RevokeAllFromGroup(group *security.Group)*`::
+Revokes permissions on all methods given by AllowAllToGroup.
+It simply removes the group from the groups allowed on every method, but does
+not change any specific permission granted on a per method basis.
+
+== Field Access Control (FAC)
+
+=== Rationale
+
+While MEC is the main security mechanism used in Doxa, it is sometimes necessary
+to limit read or write access for some users to some fields. This is
+particularly true in the user interface.
+
+This is done through Field Access Control. The following rules apply:
+
+- If a user without `Read` permission on a field retrieve a record, the value of
+the field will be replaced by its Go zero value.
+- If a user without `Write` permission on a field writes a record, the value of
+the field will not be updated.
+- Clients *should* make this behaviour explicit in their UI by removing non
+readable fields and marking as read only fields without `Write` permission.
+
+=== Defining Field Access Permissions
+
+Two permissions are applicable to fields: `security.Read` and
+`security.Write`.
+
+By default, `security.GroupEveryone` is granted `security.Read` and
+`security.Write` permissions on all fields.
+
+Field permissions can be modified with the following methods:
+
+`*(*Field) GrantAccess(group *security.Group, perm security.Permission) *Field*`::
+Grant the given `perm` to the given `group` on this field.
+
+`*(*Field) RevokeAccess(group *security.Group, perm security.Permission) *Field*`::
+Revoke the given `perm` to the given `group` on this field if it has been
+granted previously, otherwise does nothing.
+
+NOTE: These methods return a pointer to the receiver so that they can be
+chained.
+
+[source,go]
+salesManager := security.Registry.GetGroup("sale_manager")
+h.Partner().Fields().Phone().
+    RevokeAccess(security.GroupEveryOne, security.Read).
+    AllowAccess(salesManager, security.Read)
+
+== Record Rules (RR)
+
+=== Definition
+Record Rules allow to grant or deny a group some permissions on a selection of
+records. This could be the case for example to allow a salesman only to see his
+own sales.
+
+A Record Rule is a struct with the following definition, in the models package:
+
+[source,go]
+----
+type RecordRule struct {
+    Name      string
+    Global    bool
+    Group     *Group
+    Condition *models.Condition
+    Perms     Permission
+}
+----
+
+If the `Global` field of a `RecordRule` is set, then the rule applies to all
+groups and the `Group` field is ignored. The `Condition` fields is the
+filter to apply on the model to retrieve the records. `Perms` define on which
+operation the rule will be called. For example, if `security.Read` is set then
+the rule will be applied only on reading operations. Condition value may be
+functions just like any other Condition. This may be particularly useful to
+get the current user.
+
+=== Adding or removing Record Rules
+
+Record Rules are added or removed from the Record Rules Registry with the
+following functions:
+
+`*(*Model) AddRecordRule(rule *RecordRule)*`::
+Register the given `RecordRule` to the registry for the given `model`. If the
+rule's `Name` already exists, then the rule is overwritten.
+
+[source,go]
+----
+salesman := security.Registry.GetGroup("sale_user")
+
+func getUserID(rs h.PartnerSet) interface{} {
+    return rs.Env().Uid()
+}
+
+cond := q.Partner().UserFilteredOn(h.User().ID().EqualsFunc(getUserID))
+
+rule := models.RecordRule {
+    Name:      "salesman_own_partner",
+    Group:     salesman,
+    Condition: cond,
+    Perms:     security.All,
+}
+h.Partner().AddRecordRule(&rule)
+----
+
+`*(*Model) RemoveRecordRule(name string)*`::
+Removes the Record Rule with the given `name` from the rule registry of the
+given `model`.
+
+[source,go]
+h.Partner().RemoveRecordRule("salesman_own_partner")
+
+=== Record Rules combination
+
+Global rules and group rules (rules restricted to specific groups versus groups
+applying to all users) are used quite differently:
+
+* Global rules are subtractive, they must all be matched for a record to be
+accessible
+* Group rules are additive, if any of them matches (and all global rules match)
+then the record is accessible
+
+This means the first group rule restricts access, but any further group rule
+expands it, while global rules can only ever restrict access (or have no
+effect).
