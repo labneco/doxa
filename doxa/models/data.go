@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/security"
 )
 
 // LoadCSVDataFile loads the data of the given file into the database.

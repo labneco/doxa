@@ -13,7 +13,7 @@ training courses. We create this module inside the doxa-demo directory:
 
 [source,shell]
 ----
-$ cd $GOPATH/src/github.com/doxa-erp/doxa-demo
+$ cd $GOPATH/src/github.com/labneco/doxa-demo
 $ mkdir openacademy
 ----
 
@@ -28,8 +28,8 @@ package project
 // Import here anonymously all doxa addons you need in your application
 import (
 	// Import webclient module
-	_ "github.com/doxa-erp/doxa-base/web"
-	_ "github.com/doxa-erp/doxa-demo/openacademy"
+	_ "github.com/labneco/doxa-ui/web"
+	_ "github.com/labneco/doxa-demo/openacademy"
 )
 
 NOTE: We highly recommend that you use a Go IDE or editor with autocompletion
@@ -38,7 +38,7 @@ to benefit from the static typing of the Doxa framework.
 ----
 
 NOTE: All file paths in this tutorial are relative to the
-`$GOPATH/src/github.com/doxa-erp/doxa-demo` directory.
+`$GOPATH/src/github.com/labneco/doxa-demo` directory.
 
 == Start/Stop the Doxa server
 
@@ -107,7 +107,7 @@ created above:
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/server"
 )
 
 const MODULE_NAME string = "openacademy"
@@ -157,7 +157,7 @@ the module.
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/models"
 )
 
 func init() {
@@ -178,11 +178,11 @@ In order to use our newly created model, we need to generate the code that
 will provide the structs and methods of this model.
 
 This is done with the `doxa generate` command that must be executed at the
-project's root (i.e. `$GOPATH/src/github.com/doxa-erp/doxa-demo`).
+project's root (i.e. `$GOPATH/src/github.com/labneco/doxa-demo`).
 
 [source,bash]
 ----
-$ cd $GOPATH/src/github.com/doxa-erp/doxa-demo
+$ cd $GOPATH/src/github.com/labneco/doxa-demo
 $ doxa generate
 ----
 
@@ -222,8 +222,8 @@ Update the `OpenAcademyCourse` model to include a name and a description to our 
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/pool/h" // <1>
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/pool/h" // <1>
 )
 
 func init() {
@@ -536,7 +536,7 @@ definitions using the `doxa updatedb` command in the project root directory.
 
 [source,bash]
 ----
-$ cd $GOPATH/src/github.com/doxa-erp/doxa-demo
+$ cd $GOPATH/src/github.com/labneco/doxa-demo
 $ doxa updatedb -o
 ----
 
@@ -596,9 +596,9 @@ the new model
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/pool/h"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/pool/h"
 )
 
 func init() { // <1>
@@ -727,8 +727,8 @@ Let's add relations to our Course and Session models.
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/pool/h"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/pool/h"
 )
 
 func init() {
@@ -750,9 +750,9 @@ func init() {
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/pool/h"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/pool/h"
 )
 
 func init() {
@@ -984,8 +984,8 @@ the session-partner relation.
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/pool/h"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/pool/h"
 )
 
 func init() {
@@ -1281,7 +1281,7 @@ We can add a domain to limit instructors to partners who are instructors:
 ----
 import (
 (...)
-	"github.com/doxa-erp/doxa/pool/q"
+	"github.com/labneco/doxa/pool/q"
 )
 (...)
     "Instructor": models.Many2OneField{RelationModel: h.Partner(),
@@ -1563,8 +1563,8 @@ model.
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/server"
 )
 
 const MODULE_NAME string = "openacademy"
@@ -1679,7 +1679,7 @@ of the group must be able to modify it.
 ----
 import (
 (...)
-	"github.com/doxa-erp/doxa/pool/q"
+	"github.com/labneco/doxa/pool/q"
 )
 
 func getCurrentUser(rs h.OpenAcademyCourseSet) h.UserSet {
@@ -1728,9 +1728,9 @@ session, or for a list of sessions at once.
 package openacademy
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/pool/h"
-	"github.com/doxa-erp/doxa/pool/q"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/pool/h"
+	"github.com/labneco/doxa/pool/q"
 )
 
 func init() {
@@ -1829,7 +1829,7 @@ translation:
 
 [source]
 ----
-$ cd $GOPATH/src/github.com/doxa-erp/doxa-demo
+$ cd $GOPATH/src/github.com/labneco/doxa-demo
 $ mkdir openacademy/i18n
 $ doxa i18n update ./openacademy -l fr
 ----

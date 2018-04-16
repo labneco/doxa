@@ -23,15 +23,15 @@ import (
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-	"github.com/doxa-erp/doxa/doxa/actions"
-	"github.com/doxa-erp/doxa/doxa/controllers"
-	"github.com/doxa-erp/doxa/doxa/i18n"
-	"github.com/doxa-erp/doxa/doxa/menus"
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/server"
-	"github.com/doxa-erp/doxa/doxa/tools/generate"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
-	"github.com/doxa-erp/doxa/doxa/views"
+	"github.com/labneco/doxa/doxa/actions"
+	"github.com/labneco/doxa/doxa/controllers"
+	"github.com/labneco/doxa/doxa/i18n"
+	"github.com/labneco/doxa/doxa/menus"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/tools/generate"
+	"github.com/labneco/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/views"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -167,7 +167,7 @@ var startFileTemplate = template.Must(template.New("").Parse(`
 package main
 
 import (
-	"github.com/doxa-erp/doxa/cmd"
+	"github.com/labneco/doxa/cmd"
 {{ range .Imports }}	_ "{{ . }}"
 {{ end }}
 )

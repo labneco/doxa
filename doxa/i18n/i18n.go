@@ -6,8 +6,8 @@ package i18n
 import (
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/tools/po"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/tools/po"
 )
 
 const fieldSep string = "."

@@ -22,8 +22,8 @@ import (
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/doxa-erp/doxa/doxa/tools/generate"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/generate"
+	"github.com/labneco/doxa/doxa/tools/logging"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/acme/autocert"
 )

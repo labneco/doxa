@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 // LessCompilerCommand is the executable lessc to be called to compile less files

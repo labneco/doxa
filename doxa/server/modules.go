@@ -21,12 +21,12 @@ import (
 	"sort"
 
 	"github.com/beevik/etree"
-	"github.com/doxa-erp/doxa/doxa/actions"
-	"github.com/doxa-erp/doxa/doxa/i18n"
-	"github.com/doxa-erp/doxa/doxa/menus"
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/tools/generate"
-	"github.com/doxa-erp/doxa/doxa/views"
+	"github.com/labneco/doxa/doxa/actions"
+	"github.com/labneco/doxa/doxa/i18n"
+	"github.com/labneco/doxa/doxa/menus"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/tools/generate"
+	"github.com/labneco/doxa/doxa/views"
 )
 
 // A Module is a go package that implements business features.

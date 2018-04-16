@@ -18,7 +18,7 @@ import (
 	"io/ioutil"
 	"path"
 
-	"github.com/doxa-erp/doxa/doxa/tools/generate"
+	"github.com/labneco/doxa/doxa/tools/generate"
 )
 
 // ListStaticFiles get all file names of the static files that are in

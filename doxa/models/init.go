@@ -15,8 +15,8 @@
 package models
 
 import (
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 	"github.com/jmoiron/sqlx"
 )
 

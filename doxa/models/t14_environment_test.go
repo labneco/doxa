@@ -17,8 +17,8 @@ package models
 import (
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

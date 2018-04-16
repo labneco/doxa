@@ -23,9 +23,9 @@ import (
 	"sync"
 
 	"github.com/beevik/etree"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/tools/xmlutils"
-	"github.com/doxa-erp/doxa/doxa/views"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/tools/xmlutils"
+	"github.com/labneco/doxa/doxa/views"
 )
 
 // An ActionType defines the type of action

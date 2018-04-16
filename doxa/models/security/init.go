@@ -14,7 +14,7 @@
 
 package security
 
-import "github.com/doxa-erp/doxa/doxa/tools/logging"
+import "github.com/labneco/doxa/doxa/tools/logging"
 
 var log *logging.Logger
 

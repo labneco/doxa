@@ -19,11 +19,11 @@ import (
 
 	"log"
 
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/pool/h"
-	"github.com/doxa-erp/doxa/pool/q"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/pool/h"
+	"github.com/labneco/doxa/pool/q"
 )
 
 func init() {

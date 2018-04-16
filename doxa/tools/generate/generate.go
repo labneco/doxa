@@ -13,7 +13,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/imports"
 )
@@ -226,7 +226,7 @@ func copyMethodHandler(modelData *modelData, depsMap *map[string]bool) {
 func searchByNameMethodHandler(modelData *modelData, depsMap *map[string]bool) {
 	name := "SearchByName"
 	returnString := fmt.Sprintf("%sSet", modelData.Name)
-	(*depsMap)["github.com/doxa-erp/doxa/doxa/models/operator"] = true
+	(*depsMap)["github.com/labneco/doxa/doxa/models/operator"] = true
 	modelData.AllMethods = append(modelData.AllMethods, methodData{
 		Name:         name,
 		ParamsTypes:  fmt.Sprintf("string, operator.Operator, %s.%sCondition, int", PoolQueryPackage, modelData.Name),
@@ -519,8 +519,8 @@ var poolModelsTemplate = template.Must(template.New("").Parse(`
 package {{ .ModelsPackageName }}
 
 import (
-	"github.com/doxa-erp/doxa/doxa/tools/typesutils"
-    "github.com/doxa-erp/doxa/pool/{{ .QueryPackageName }}"
+	"github.com/labneco/doxa/doxa/tools/typesutils"
+    "github.com/labneco/doxa/pool/{{ .QueryPackageName }}"
 {{ range .Deps }} 	"{{ . }}"
 {{ end }}
 )
@@ -915,8 +915,8 @@ var poolQueryTemplate = template.Must(template.New("").Parse(`
 package {{ .QueryPackageName }}
 
 import (
-	"github.com/doxa-erp/doxa/doxa/tools/typesutils"
-	"github.com/doxa-erp/doxa/pool/{{ .QueryPackageName }}/{{ .SnakeName }}"
+	"github.com/labneco/doxa/doxa/tools/typesutils"
+	"github.com/labneco/doxa/pool/{{ .QueryPackageName }}/{{ .SnakeName }}"
 {{ range .Deps }} 	"{{ . }}"
 {{ end }}
 )
@@ -938,7 +938,7 @@ var poolModelsQueryTemplate = template.Must(template.New("").Parse(`
 package {{ .SnakeName }}
 
 import (
-	"github.com/doxa-erp/doxa/doxa/tools/typesutils"
+	"github.com/labneco/doxa/doxa/tools/typesutils"
 {{ range .Deps }} 	"{{ . }}"
 {{ end }}
 )

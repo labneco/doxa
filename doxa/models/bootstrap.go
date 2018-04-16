@@ -17,9 +17,9 @@ package models
 import (
 	"fmt"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
 )
 
 // A modelCouple holds a model and one of its mixin

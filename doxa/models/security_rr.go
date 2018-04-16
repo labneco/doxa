@@ -17,7 +17,7 @@ package models
 import (
 	"sync"
 
-	"github.com/doxa-erp/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/security"
 )
 
 // A RecordRule allow to grant a group some permissions

@@ -15,8 +15,8 @@
 package models
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 // DBSerializationMaxRetries defines the number of time a

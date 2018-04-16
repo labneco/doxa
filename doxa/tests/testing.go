@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/server"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/tools/logging"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )
@@ -25,7 +25,7 @@ var driver, user, password, prefix, debug string
 //
 //     import (
 //         "testing"
-//         "github.com/doxa-erp/doxa/doxa/tests"
+//         "github.com/labneco/doxa/doxa/tests"
 //     )
 //
 //     func TestMain(m *testing.M) {

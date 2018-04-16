@@ -6,8 +6,8 @@ package cmd
 import (
 	"text/template"
 
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -56,7 +56,7 @@ var updateDBTemplate = template.Must(template.New("").Parse(`
 package main
 
 import (
-	"github.com/doxa-erp/doxa/cmd"
+	"github.com/labneco/doxa/cmd"
 {{ range .Imports }}	_ "{{ . }}"
 {{ end }}
 )

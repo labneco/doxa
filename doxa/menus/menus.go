@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	"github.com/beevik/etree"
-	"github.com/doxa-erp/doxa/doxa/actions"
+	"github.com/labneco/doxa/doxa/actions"
 )
 
 // Registry is the menu Collection of the application

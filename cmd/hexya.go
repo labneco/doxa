@@ -21,7 +21,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -43,7 +43,7 @@ func init() {
 	DoxaCmd.PersistentFlags().StringP("config", "c", "", "Alternate configuration file to read. Defaults to $HOME/.doxa/")
 	viper.BindPFlag("ConfigFileName", DoxaCmd.PersistentFlags().Lookup("config"))
 
-	DoxaCmd.PersistentFlags().StringSliceP("modules", "m", []string{"github.com/doxa-erp/doxa-base/web"}, "List of module paths to load. Defaults to ['github.com/doxa-erp/doxa-base/web']")
+	DoxaCmd.PersistentFlags().StringSliceP("modules", "m", []string{"github.com/labneco/doxa-ui/web"}, "List of module paths to load. Defaults to ['github.com/labneco/doxa-ui/web']")
 	viper.BindPFlag("Modules", DoxaCmd.PersistentFlags().Lookup("modules"))
 
 	DoxaCmd.PersistentFlags().StringP("log-level", "L", "info", "Log level. Should be one of 'debug', 'info', 'warn', 'error' or 'crit'")

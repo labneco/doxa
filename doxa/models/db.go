@@ -18,7 +18,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/doxa-erp/doxa/doxa/models/operator"
+	"github.com/labneco/doxa/doxa/models/operator"
 	"github.com/jmoiron/sqlx"
 )
 

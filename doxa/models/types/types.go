@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
-	"github.com/doxa-erp/doxa/doxa/tools/nbutils"
+	"github.com/labneco/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/nbutils"
 )
 
 var log *logging.Logger

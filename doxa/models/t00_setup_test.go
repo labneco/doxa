@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"

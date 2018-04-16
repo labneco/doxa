@@ -20,7 +20,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 var log *logging.Logger

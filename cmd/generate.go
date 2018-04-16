@@ -24,8 +24,8 @@ import (
 	"text/template"
 
 	// We need to import models because of generated code
-	_ "github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/tools/generate"
+	_ "github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/tools/generate"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/tools/go/loader"

@@ -15,8 +15,8 @@
 package models
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
 )
 
 // WithEnv returns a copy of the current RecordCollection with the given Environment.

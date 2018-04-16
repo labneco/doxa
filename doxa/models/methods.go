@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/doxa-erp/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/security"
 )
 
 // A MethodsCollection is a collection of methods for use in a model

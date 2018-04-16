@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/doxa-erp/doxa/doxa/tools/exceptions"
+	"github.com/labneco/doxa/doxa/tools/exceptions"
 	"github.com/inconshreveable/log15"
 	"github.com/spf13/viper"
 )

@@ -18,7 +18,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
 )
 
 // A cacheRef is a key to find a record in a cache

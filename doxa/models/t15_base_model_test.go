@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types/dates"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

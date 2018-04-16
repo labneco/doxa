@@ -20,8 +20,8 @@ import (
 	"encoding/xml"
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/tools/xmlutils"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/tools/xmlutils"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

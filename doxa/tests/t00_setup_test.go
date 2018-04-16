@@ -17,7 +17,7 @@ package tests
 import (
 	"testing"
 
-	_ "github.com/doxa-erp/doxa/doxa/tests/testmodule"
+	_ "github.com/labneco/doxa/doxa/tests/testmodule"
 	_ "github.com/lib/pq"
 )
 

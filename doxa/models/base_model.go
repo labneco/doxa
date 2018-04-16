@@ -19,12 +19,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/i18n"
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/operator"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/i18n"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/operator"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/types/dates"
 )
 
 const (

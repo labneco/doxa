@@ -6,7 +6,7 @@ package i18n
 import (
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/types"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

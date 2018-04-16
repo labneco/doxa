@@ -15,8 +15,8 @@
 package models
 
 import (
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/tools/typesutils"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/tools/typesutils"
 )
 
 // computeFieldValues updates the given params with the given computed (non stored) fields

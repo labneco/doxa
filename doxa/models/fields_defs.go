@@ -8,12 +8,12 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
-	"github.com/doxa-erp/doxa/doxa/tools/nbutils"
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/tools/nbutils"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 )
 
 // A FieldDefinition is a struct that declares a new field in a fields collection;

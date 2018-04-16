@@ -6,7 +6,7 @@ package fieldtype
 import (
 	"reflect"
 
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/models/types/dates"
 )
 
 // A Type defines a type of a model's field

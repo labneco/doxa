@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/operator"
+	"github.com/labneco/doxa/doxa/models/operator"
 )
 
 // ExprSep define the expression separation

@@ -5,8 +5,8 @@ package views
 
 import (
 	"github.com/beevik/etree"
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 const maxInheritanceDepth = 100

@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/operator"
-	"github.com/doxa-erp/doxa/doxa/tools/nbutils"
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/operator"
+	"github.com/labneco/doxa/doxa/tools/nbutils"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 )
 
 // An SQLParams is a list of parameters that are passed to the

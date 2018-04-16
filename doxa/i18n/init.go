@@ -4,7 +4,7 @@
 package i18n
 
 import (
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 	"github.com/spf13/viper"
 )
 

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/doxa-erp/doxa/cmd"
+	"github.com/labneco/doxa/cmd"
 )
 
 func main() {

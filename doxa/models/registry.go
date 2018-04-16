@@ -23,10 +23,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/tools/nbutils"
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/tools/nbutils"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 	"github.com/jmoiron/sqlx"
 )
 

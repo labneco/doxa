@@ -4,9 +4,9 @@
 package menus
 
 import (
-	"github.com/doxa-erp/doxa/doxa/actions"
-	"github.com/doxa-erp/doxa/doxa/i18n"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/actions"
+	"github.com/labneco/doxa/doxa/i18n"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 var log *logging.Logger

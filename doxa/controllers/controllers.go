@@ -3,7 +3,7 @@
 
 package controllers
 
-import "github.com/doxa-erp/doxa/doxa/server"
+import "github.com/labneco/doxa/doxa/server"
 
 // Registry is the central collection of all the application controllers
 var Registry *Group

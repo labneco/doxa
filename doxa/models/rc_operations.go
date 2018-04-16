@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/tools/typesutils"
+	"github.com/labneco/doxa/doxa/tools/typesutils"
 )
 
 // Union returns a new RecordCollection that is the union of this RecordCollection

@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/doxa-erp/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/server"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

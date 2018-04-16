@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/doxa-erp/doxa.svg?branch=master)](https://travis-ci.org/doxa-erp/doxa)
-[![Go Report Card](https://goreportcard.com/badge/doxa-erp/doxa)](https://goreportcard.com/report/doxa-erp/doxa)
-[![codecov](https://codecov.io/gh/doxa-erp/doxa/branch/master/graph/badge.svg)](https://codecov.io/gh/doxa-erp/doxa)
-[![godoc reference](https://godoc.org/github.com/doxa-erp/doxa?status.png)](https://godoc.org/github.com/doxa-erp/doxa)
+[![Build Status](https://travis-ci.org/labneco/doxa.svg?branch=master)](https://travis-ci.org/labneco/doxa)
+[![Go Report Card](https://goreportcard.com/badge/labneco/doxa)](https://goreportcard.com/report/labneco/doxa)
+[![codecov](https://codecov.io/gh/labneco/doxa/branch/master/graph/badge.svg)](https://codecov.io/gh/labneco/doxa)
+[![godoc reference](https://godoc.org/github.com/labneco/doxa?status.png)](https://godoc.org/github.com/labneco/doxa)
 
 Doxa
 ===

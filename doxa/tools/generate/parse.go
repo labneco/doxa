@@ -24,8 +24,8 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/doxa-erp/doxa/doxa/models/fieldtype"
-	"github.com/doxa-erp/doxa/doxa/tools/strutils"
+	"github.com/labneco/doxa/doxa/models/fieldtype"
+	"github.com/labneco/doxa/doxa/tools/strutils"
 	"golang.org/x/tools/go/loader"
 )
 

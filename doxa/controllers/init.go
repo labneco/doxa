@@ -4,8 +4,8 @@
 package controllers
 
 import (
-	"github.com/doxa-erp/doxa/doxa/server"
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 var log *logging.Logger

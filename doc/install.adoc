@@ -46,7 +46,7 @@ Doxa uses the standard go toolchain. Download Doxa with the following command:
 
 [source,shell]
 ----
-go get github.com/doxa-erp/doxa
+go get github.com/labneco/doxa
 ----
 
 This will download doxa and its dependencies in your workspace and compile the
@@ -58,8 +58,8 @@ Doxa modules are distributed as Go packages. They can be downloaded with
 
 [source,shell]
 ----
-go get -d github.com/doxa-erp/doxa-base
-go get -d github.com/doxa-erp/doxa-addons
+go get -d github.com/labneco/doxa-ui
+go get -d github.com/labneco/doxa-addons
 ----
 
 NOTE: Discard any message about no buildable Go code
@@ -73,7 +73,7 @@ If you want to evaluate Doxa, you can download the `doxa-demo` project.
 
 [source,shell]
 ----
-go get github.com/doxa-erp/doxa-demo
+go get github.com/labneco/doxa-demo
 ----
 
 === Creating a custom project
@@ -83,7 +83,7 @@ Edit this configuration file to look like this (adapt as needed):
 [source,toml]
 ----
 Modules = [
-    "github.com/doxa-erp/doxa-addons/sale"
+    "github.com/labneco/doxa-addons/sale"
 ]
 LogStdout = true
 #LogFile = ""

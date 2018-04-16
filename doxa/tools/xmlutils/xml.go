@@ -19,7 +19,7 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 
-	"github.com/doxa-erp/doxa/doxa/tools/logging"
+	"github.com/labneco/doxa/doxa/tools/logging"
 )
 
 var log *logging.Logger

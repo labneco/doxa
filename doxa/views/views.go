@@ -25,9 +25,9 @@ import (
 	"sync"
 
 	"github.com/beevik/etree"
-	"github.com/doxa-erp/doxa/doxa/i18n"
-	"github.com/doxa-erp/doxa/doxa/models"
-	"github.com/doxa-erp/doxa/doxa/tools/xmlutils"
+	"github.com/labneco/doxa/doxa/i18n"
+	"github.com/labneco/doxa/doxa/models"
+	"github.com/labneco/doxa/doxa/tools/xmlutils"
 )
 
 // A ViewType defines the type of a view

@@ -15,7 +15,7 @@
 package testllmodule
 
 import (
-	"github.com/doxa-erp/doxa/doxa/server"
+	"github.com/labneco/doxa/doxa/server"
 )
 
 // Module data declaration

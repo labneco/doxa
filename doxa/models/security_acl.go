@@ -14,7 +14,7 @@
 
 package models
 
-import "github.com/doxa-erp/doxa/doxa/models/security"
+import "github.com/labneco/doxa/doxa/models/security"
 
 // GrantAccess grants the given perm to the given group on the given field of model.
 // Only security.Read and security.Write permissions are taken into account by

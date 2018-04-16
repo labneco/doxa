@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/doxa-erp/doxa/doxa/models/security"
-	"github.com/doxa-erp/doxa/doxa/models/types"
-	"github.com/doxa-erp/doxa/doxa/models/types/dates"
-	"github.com/doxa-erp/doxa/doxa/tools/nbutils"
+	"github.com/labneco/doxa/doxa/models/security"
+	"github.com/labneco/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/types/dates"
+	"github.com/labneco/doxa/doxa/tools/nbutils"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

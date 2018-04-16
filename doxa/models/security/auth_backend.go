@@ -17,7 +17,7 @@ package security
 import (
 	"fmt"
 
-	"github.com/doxa-erp/doxa/doxa/models/types"
+	"github.com/labneco/doxa/doxa/models/types"
 )
 
 // AuthenticationRegistry is the authentication registry of the application
